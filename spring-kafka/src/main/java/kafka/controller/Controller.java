@@ -1,19 +1,3 @@
-/*
- * Copyright 2018-2019 the original author or authors.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      https://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package kafka.controller;
 
 import java.util.ArrayList;
@@ -24,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.kafka.config.KafkaListenerEndpointRegistry;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.TopicPartitionOffset;
@@ -42,14 +27,18 @@ public class Controller {
   @Autowired
   private ConsumerFactory<Object, Object> consumerFactory;
 
+  @Autowired
+  private KafkaListenerEndpointRegistry registry;
+
   /**
    * 发送消息.
    *
    * @param str
    */
-  @PostMapping(path = "/send/{str}")
-  public void sendFoo(@PathVariable String str) {
-    this.kafkaTemplate.send("topic1", new Command(str));
+  @PostMapping(path = "/send/{topic}/{str}")
+  public void sendMsg(@PathVariable String topic,
+      @PathVariable String str) {
+    this.kafkaTemplate.send(topic, new Command(str));
   }
 
   /**
@@ -69,5 +58,21 @@ public class Controller {
       ConsumerRecord<Object, Object> record = it.next();
       log.info("record => {}", record.toString());
     }
+  }
+
+  /**
+   * 暂停消费者.
+   */
+  @PostMapping(path = "/pause/{groupId}")
+  public void pauseConsumer(@PathVariable String groupId) {
+    registry.getListenerContainer(groupId).pause();
+  }
+
+  /**
+   * 还原消费者.
+   */
+  @PostMapping(path = "/resume/{groupId}")
+  public void resumeConsumer(@PathVariable String groupId) {
+    registry.getListenerContainer(groupId).resume();
   }
 }
