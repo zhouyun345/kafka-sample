@@ -3,6 +3,7 @@ package kafka.controller;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import kafka.listener.SeekTimestampListerer;
 import kafka.model.Command;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -26,6 +27,9 @@ public class Controller {
 
   @Autowired
   private ConsumerFactory<Object, Object> consumerFactory;
+
+  @Autowired
+  private SeekTimestampListerer seekTimestampListerer;
 
   @Autowired
   private KafkaListenerEndpointRegistry registry;
@@ -74,5 +78,15 @@ public class Controller {
   @PostMapping(path = "/resume/{groupId}")
   public void resumeConsumer(@PathVariable String groupId) {
     registry.getListenerContainer(groupId).resume();
+  }
+
+  /**
+   * 回溯消费.
+   *
+   * @param topic
+   */
+  @PostMapping(path = "/rewind/{topic}")
+  public void rewindAllBeginning(@PathVariable String topic) {
+    seekTimestampListerer.rewindBeginning(topic);
   }
 }

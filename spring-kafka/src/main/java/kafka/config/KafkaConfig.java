@@ -19,7 +19,7 @@ public class KafkaConfig {
         new DeadLetterPublishingRecoverer(template), new FixedBackOff(1000L, 2));
   }
 
-  @Bean
+//  @Bean
   public RecordMessageConverter converter() {
     return new JsonMessageConverter();
   }

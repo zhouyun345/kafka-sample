@@ -3,7 +3,6 @@ import java.util.concurrent.ExecutionException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.Callback;
 import org.apache.kafka.clients.producer.KafkaProducer;
-import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
@@ -32,36 +31,35 @@ public class ProducerTest {
     properties.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
     //把发送消息value从字符串序列化为字节数组
     properties.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
-    Producer<String, String> producer = new KafkaProducer<>(properties);
 
-    for (int i = 1; i <= 5; i++) {
-      //指定发送分区
-      String message = "this is msg" + i;
-      ProducerRecord<String, String> producerRecord = new ProducerRecord<>(
-          "kafka-test", 0, String.valueOf(i), message);
-      //未指定发送分区，具体发送的分区计算公式：hash(key)%partitionNum
-      //ProducerRecord<String, String> producerRecord = new ProducerRecord<String, String>("my‐replicated‐topic", order.getOrderId().toString(), JSON.toJSONString(order));
-      // 等待消息发送成功的同步阻塞方法
+    try (var producer = new KafkaProducer<String, String>(properties)) {
+      for (int i = 1; i <= 5; i++) {
+        //指定发送分区
+        String message = "this is msg" + i;
+        ProducerRecord<String, String> producerRecord = new ProducerRecord<>(
+            "kafka-test", 0, String.valueOf(i), message);
+        //未指定发送分区，具体发送的分区计算公式：hash(key)%partitionNum
+        //ProducerRecord<String, String> producerRecord = new ProducerRecord<String, String>("my‐replicated‐topic", order.getOrderId().toString(), JSON.toJSONString(order));
+        // 等待消息发送成功的同步阻塞方法
 //      RecordMetadata metadata = producer.send(producerRecord).get();
 //      log.info("同步方式发送消息结果：topic => {}, partition => {}, offset => {}, message => {}",
 //          metadata.topic(),
 //          metadata.partition(), metadata.offset(), message);
 
-      //异步方式发送消息
-      producer.send(producerRecord, new Callback() {
-        @Override
-        public void onCompletion(RecordMetadata metadata, Exception exception) {
-          if (exception != null) {
-            log.error("发送消息失败", exception);
+        //异步方式发送消息
+        producer.send(producerRecord, new Callback() {
+          @Override
+          public void onCompletion(RecordMetadata metadata, Exception exception) {
+            if (exception != null) {
+              log.error("发送消息失败", exception);
+            }
+            if (metadata != null) {
+              log.info("异步方式发送消息结果：topic => {}, partition => {}, offset => {}, message => {}",
+                  metadata.topic(), metadata.partition(), metadata.offset(), message);
+            }
           }
-          if (metadata != null) {
-            log.info("异步方式发送消息结果：topic => {}, partition => {}, offset => {}, message => {}",
-                metadata.topic(), metadata.partition(), metadata.offset(), message);
-          }
-        }
-      });
+        });
+      }
     }
-
-    producer.close();
   }
 }

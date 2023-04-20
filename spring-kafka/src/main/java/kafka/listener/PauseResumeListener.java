@@ -9,6 +9,9 @@ import org.springframework.kafka.config.TopicBuilder;
 import org.springframework.kafka.event.KafkaEvent;
 import org.springframework.stereotype.Service;
 
+/**
+ * 支持暂停重启消费者.
+ */
 @Slf4j
 @Service
 public class PauseResumeListener implements ApplicationListener<KafkaEvent> {
