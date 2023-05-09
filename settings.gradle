@@ -1,4 +1,5 @@
 rootProject.name = 'kafka-sample'
 include 'kafka-client'
 include 'spring-kafka'
+include 'spring-kafka-tx'
 

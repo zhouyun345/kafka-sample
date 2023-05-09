@@ -1,7 +1,17 @@
 spring:
   kafka:
     producer:
-      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      value-serializer: io.confluent.kafka.serializers.KafkaAvroSerializer
     consumer:
-      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+      properties:
+        specific.avro.reader: true
+        spring.deserializer.value.delegate.class: io.confluent.kafka.serializers.KafkaAvroDeserializer
     bootstrap-servers: localhost:9092
+#    bootstrap-servers: broker1.pp-fra.messaging-kafka.aws.porsche-preview.cloud:9092,broker2.pp-fra.messaging-kafka.aws.porsche-preview.cloud:9092,broker3.pp-fra.messaging-kafka.aws.porsche-preview.cloud:9092
+    properties:
+      schema.registry.url: http://localhost:8081
+#      schema.registry.url: https://schema-registry.pp-fra.messaging-kafka.aws.porsche-preview.cloud:8081
+logging:
+  level:
+    org.apache.kafka: info

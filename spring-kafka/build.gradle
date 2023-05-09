@@ -1,4 +1,14 @@
+plugins {
+//    id "com.github.davidmc24.gradle.plugin.avro" version "1.7.1"
+}
 
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'io.confluent:kafka-avro-serializer:7.3.3'
+}
+
+repositories {
+    maven {
+        url('https://packages.confluent.io/maven/')
+    }
 }

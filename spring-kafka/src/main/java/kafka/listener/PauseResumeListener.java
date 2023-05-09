@@ -4,19 +4,17 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Bean;
-import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.config.TopicBuilder;
 import org.springframework.kafka.event.KafkaEvent;
-import org.springframework.stereotype.Service;
 
 /**
  * 支持暂停重启消费者.
  */
 @Slf4j
-@Service
+//@Service
 public class PauseResumeListener implements ApplicationListener<KafkaEvent> {
 
-  @KafkaListener(id = "pause.resume", topics = "pause.resume.topic")
+  //@KafkaListener(id = "pause.resume", topics = "pause.resume.topic")
   public void listen(String msg) {
     log.info("pause.resume.topic received: {}", msg);
   }

@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.List;
 import kafka.listener.SeekTimestampListerer;
 import kafka.model.Command;
+import kafka.model.Payment;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -43,6 +44,18 @@ public class Controller {
   public void sendMsg(@PathVariable String topic,
       @PathVariable String str) {
     this.kafkaTemplate.send(topic, new Command(str));
+  }
+
+  /**
+   * sendAvro格式数据.
+   *
+   * @param topic
+   * @param id
+   */
+  @PostMapping(path = "/sendAvro/{topic}/{id}")
+  public void sendAvro(@PathVariable String topic,
+      @PathVariable String id) {
+    this.kafkaTemplate.send(topic, new Payment(id,100.00));
   }
 
   /**

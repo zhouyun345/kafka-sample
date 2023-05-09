@@ -3,7 +3,6 @@ package kafka.listener;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.TopicPartition;
-import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.listener.AbstractConsumerSeekAware;
 import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.messaging.handler.annotation.Header;
@@ -16,7 +15,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class SeekTimestampListerer extends AbstractConsumerSeekAware {
 
-  @KafkaListener(id = "seekTimestamp", topics = "topic1")
+  //@KafkaListener(id = "seekTimestamp", topics = "topic1")
   public void listen(
       @Header(value = KafkaHeaders.RECEIVED_MESSAGE_KEY, required = false) String key,
       @Header(KafkaHeaders.RECEIVED_TIMESTAMP) Long timestamp,
