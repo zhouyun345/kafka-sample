@@ -1,10 +1,14 @@
 package kafka.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import kafka.listener.SeekTimestampListerer;
 import kafka.model.Command;
+import kafka.model.DelayMessage;
 import kafka.model.Payment;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -16,6 +20,7 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.TopicPartitionOffset;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -35,6 +40,9 @@ public class Controller {
   @Autowired
   private KafkaListenerEndpointRegistry registry;
 
+  @Autowired
+  private ObjectMapper objectMapper;
+
   /**
    * 发送消息.
    *
@@ -47,6 +55,19 @@ public class Controller {
   }
 
   /**
+   * 发送body json.
+   *
+   * @param topic
+   * @param delayMessage
+   */
+  @PostMapping(path = "/sendBody/{topic}")
+  public void sendJsonMsg(@PathVariable String topic,
+      @RequestBody DelayMessage delayMessage) throws JsonProcessingException {
+    delayMessage.setTime(LocalDateTime.now().plusSeconds(10));
+    this.kafkaTemplate.send(topic, objectMapper.writeValueAsString(delayMessage));
+  }
+
+  /**
    * sendAvro格式数据.
    *
    * @param topic
@@ -55,7 +76,7 @@ public class Controller {
   @PostMapping(path = "/sendAvro/{topic}/{id}")
   public void sendAvro(@PathVariable String topic,
       @PathVariable String id) {
-    this.kafkaTemplate.send(topic, new Payment(id,100.00));
+    this.kafkaTemplate.send(topic, new Payment(id, 100.00));
   }
 
   /**
